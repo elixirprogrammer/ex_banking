@@ -22,10 +22,7 @@ defmodule ExBanking.Transactions do
           {:ok, new_balance :: number()}
           | {:error, :user_does_not_exist | :too_many_requests_to_user}
   def deposit(user, amount, currency) do
-    case Account.exists?(user) do
-      true -> make_deposit(user, amount, currency)
-      false -> {:error, :user_does_not_exist}
-    end
+    user_exists?(user, amount, currency, &make_deposit/3)
   end
 
   @spec withdraw(user :: String.t(), amount :: number(), currency :: String.t()) ::
@@ -36,10 +33,7 @@ defmodule ExBanking.Transactions do
              | :not_enough_money
              | :too_many_requests_to_user}
   def withdraw(user, amount, currency) do
-    case Account.exists?(user) do
-      true -> make_withdraw(user, amount, currency)
-      false -> {:error, :user_does_not_exist}
-    end
+    user_exists?(user, amount, currency, &make_withdraw/3)
   end
 
   @spec get_balance(user :: String.t(), currency :: String.t()) ::
@@ -62,26 +56,12 @@ defmodule ExBanking.Transactions do
 
   @impl true
   def handle_call({:deposit, {amount, currency}}, _from, state) do
-    case validate_operations_requests(state) do
-      :ok ->
-        {user, wallet_list} = get_deposit_state(amount, currency, state)
-        response = get_deposit_response(wallet_list, currency)
-        {:reply, response, {user, wallet_list}}
-
-      error ->
-        error
-    end
+    make_operation(amount, currency, state, &get_deposit_response/3)
   end
 
   @impl true
   def handle_call({:withdraw, {amount, currency}}, _from, state) do
-    case validate_operations_requests(state) do
-      :ok ->
-        get_withdraw_response(amount, currency, state)
-
-      error ->
-        error
-    end
+    make_operation(amount, currency, state, &get_withdraw_response/3)
   end
 
   @impl true
@@ -108,6 +88,14 @@ defmodule ExBanking.Transactions do
     AccountState.save_wallet_list(user, wallet_list)
   end
 
+  # Checks if user exists and calls corresponding function dynamically.
+  defp user_exists?(user, amount, currency, func) do
+    case Account.exists?(user) do
+      true -> func.(user, amount, currency)
+      false -> {:error, :user_does_not_exist}
+    end
+  end
+
   @spec make_deposit(user :: String.t(), amount :: number(), currency :: String.t()) ::
           {:ok, new_balance :: number()} | {:error, :too_many_requests_to_user}
   defp make_deposit(user, amount, currency) do
@@ -129,6 +117,17 @@ defmodule ExBanking.Transactions do
     GenServer.call(via_tuple, {:balance, currency})
   end
 
+  # Validates requests and calls operation response
+  defp make_operation(amount, currency, state, func) do
+    case validate_operations_requests(state) do
+      :ok ->
+        func.(amount, currency, state)
+
+      error ->
+        error
+    end
+  end
+
   # Checks the message queue length of current user process
   @spec validate_operations_requests(state :: tuple()) ::
           :ok | {:reply, {:error, :too_many_requests_to_user}, state :: tuple()}
@@ -142,11 +141,29 @@ defmodule ExBanking.Transactions do
     end
   end
 
+  @spec get_deposit_response(
+          amount :: number(),
+          currency :: String.t(),
+          wallet_list_state :: list()
+        ) :: {:reply, {:ok, amount :: number()}, {user :: String.t(), wallet_list :: list()}}
+  defp get_deposit_response(amount, currency, {user, wallet_list_state}) do
+    {user, wallet_list} = get_wallet_state(amount, currency, {user, wallet_list_state})
+    # Finds balance amount, currency tuple inside wallet list and converts amount to
+    # 2 decimal precision number.
+    {amount, _} =
+      wallet_list
+      |> Enum.find(fn {_amount, c} -> c == currency end)
+
+    response = {:ok, get_amount_response(amount)}
+
+    {:reply, response, {user, wallet_list}}
+  end
+
   # Increases balance amount for found currency already in the system
   # Adds new balance and currency to wallet list if currency not found
-  @spec get_deposit_state(new_amount :: number(), new_currency :: String.t(), state :: tuple()) ::
+  @spec get_wallet_state(new_amount :: number(), new_currency :: String.t(), state :: tuple()) ::
           {user :: String.t(), wallet_list :: list()}
-  defp get_deposit_state(new_amount, new_currency, {user, wallet_list}) do
+  defp get_wallet_state(new_amount, new_currency, {user, wallet_list}) do
     find_currency =
       wallet_list
       |> Enum.any?(fn {_amount, currency} ->
@@ -171,17 +188,6 @@ defmodule ExBanking.Transactions do
       false ->
         {user, [{new_amount, new_currency} | wallet_list]}
     end
-  end
-
-  # Finds balance amount, currency tuple inside wallet list and converts amount to
-  # 2 decimal precision number.
-  @spec get_deposit_response(wallet_list :: list(), currency :: String.t()) :: {:ok, number()}
-  defp get_deposit_response(wallet_list, currency) do
-    {amount, _} =
-      wallet_list
-      |> Enum.find(fn {_amount, c} -> c == currency end)
-
-    {:ok, get_amount_response(amount)}
   end
 
   @spec get_withdraw_response(amount :: number(), currency :: String.t(), tuple()) ::

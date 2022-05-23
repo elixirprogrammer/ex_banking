@@ -32,7 +32,7 @@ defmodule ExBanking do
           | {:error, :wrong_arguments | :user_does_not_exist | :too_many_requests_to_user}
   def deposit(user, amount, currency)
       when is_binary(user) and is_number(amount) and is_binary(currency) do
-    validate_input(user, amount, currency, &Transactions.deposit(&1, &2, &3))
+    validate_input(user, amount, currency, &Transactions.deposit/3)
   end
 
   def deposit(_, _, _), do: {:error, :wrong_arguments}
@@ -50,7 +50,7 @@ defmodule ExBanking do
              | :too_many_requests_to_user}
   def withdraw(user, amount, currency)
       when is_binary(user) and is_number(amount) and is_binary(currency) do
-    validate_input(user, amount, currency, &Transactions.withdraw(&1, &2, &3))
+    validate_input(user, amount, currency, &Transactions.withdraw/3)
   end
 
   def withdraw(_, _, _), do: {:error, :wrong_arguments}
