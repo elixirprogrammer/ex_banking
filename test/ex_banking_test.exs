@@ -8,6 +8,7 @@ defmodule ExBankingTest do
   @user1 "John Doe"
   @user2 "Jane"
   @user3 "marlong"
+  @user4 "Tania"
 
   describe "create_user/1" do
     test "creates user successfully" do
@@ -171,6 +172,57 @@ defmodule ExBankingTest do
       assert {:ok, 8.0} = ExBanking.withdraw(@user3, 1, "USD")
       assert {:ok, 8.0} = ExBanking.withdraw(@user3, 1, "Dominican")
       assert {:ok, 8.0} = ExBanking.withdraw(@user3, 1, "Canadian")
+    end
+  end
+
+  describe "get_balance/2 errors validations" do
+    test "error user not string" do
+      assert {:error, :wrong_arguments} = ExBanking.get_balance(<<1::3>>, "USD")
+      assert {:error, :wrong_arguments} = ExBanking.get_balance([], "USD")
+      assert {:error, :wrong_arguments} = ExBanking.get_balance(%{}, "USD")
+    end
+
+    test "error when currency not string" do
+      assert {:error, :wrong_arguments} = ExBanking.get_balance(@user1, <<1::3>>)
+      assert {:error, :wrong_arguments} = ExBanking.get_balance(@user1, [])
+      assert {:error, :wrong_arguments} = ExBanking.get_balance(@user1, %{})
+    end
+
+    test "error when empty user name" do
+      assert {:error, :wrong_arguments} = ExBanking.get_balance("", "USD")
+    end
+
+    test "error when empty currency" do
+      assert {:error, :wrong_arguments} = ExBanking.get_balance(@user1, "")
+    end
+
+    test "error when user does not exists" do
+      assert {:error, :user_does_not_exist} = ExBanking.get_balance("no", "USD")
+    end
+  end
+
+  describe "get_balance/2" do
+    setup do
+      :ok = ExBanking.create_user(@user4)
+      on_exit(fn -> terminate_children(@user4) end)
+    end
+
+    test "0 balance when no deposit" do
+      assert {:ok, 0.00} = ExBanking.get_balance(@user4, "USD")
+    end
+
+    test "error when currency not found" do
+      assert {:ok, 10} == ExBanking.deposit(@user4, 10, "USD")
+
+      assert {:error, :wrong_arguments} = ExBanking.get_balance(@user4, "EUR")
+    end
+
+    test "gets balance successfully" do
+      assert {:ok, 10} == ExBanking.deposit(@user4, 10, "USD")
+      assert {:ok, 10} == ExBanking.deposit(@user4, 10, "EUR")
+
+      assert {:ok, 10.0} = ExBanking.get_balance(@user4, "USD")
+      assert {:ok, 10.0} = ExBanking.get_balance(@user4, "EUR")
     end
   end
 

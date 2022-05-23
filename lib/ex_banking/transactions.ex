@@ -18,7 +18,7 @@ defmodule ExBanking.Transactions do
     GenServer.start_link(__MODULE__, user, options)
   end
 
-  @spec withdraw(user :: String.t(), amount :: number(), currency :: String.t()) ::
+  @spec deposit(user :: String.t(), amount :: number(), currency :: String.t()) ::
           {:ok, new_balance :: number()}
           | {:error, :user_does_not_exist | :too_many_requests_to_user}
   def deposit(user, amount, currency) do
@@ -28,7 +28,7 @@ defmodule ExBanking.Transactions do
     end
   end
 
-  @spec deposit(user :: String.t(), amount :: number(), currency :: String.t()) ::
+  @spec withdraw(user :: String.t(), amount :: number(), currency :: String.t()) ::
           {:ok, new_balance :: number()}
           | {:error,
              :wrong_arguments
@@ -38,6 +38,16 @@ defmodule ExBanking.Transactions do
   def withdraw(user, amount, currency) do
     case Account.exists?(user) do
       true -> make_withdraw(user, amount, currency)
+      false -> {:error, :user_does_not_exist}
+    end
+  end
+
+  @spec get_balance(user :: String.t(), currency :: String.t()) ::
+          {:ok, new_balance :: number()}
+          | {:error, :user_does_not_exist | :wrong_arguments | :too_many_requests_to_user}
+  def get_balance(user, currency) do
+    case Account.exists?(user) do
+      true -> balance(user, currency)
       false -> {:error, :user_does_not_exist}
     end
   end
@@ -75,6 +85,17 @@ defmodule ExBanking.Transactions do
   end
 
   @impl true
+  def handle_call({:balance, currency}, _from, state) do
+    case validate_operations_requests(state) do
+      :ok ->
+        get_balance_response(currency, state)
+
+      error ->
+        error
+    end
+  end
+
+  @impl true
   def handle_info(:block, state) do
     # block for one second
     Process.sleep(50)
@@ -99,6 +120,13 @@ defmodule ExBanking.Transactions do
   defp make_withdraw(user, amount, currency) do
     via_tuple = AccountDynamicSupervisor.via_tuple(user, AccountRegistry)
     GenServer.call(via_tuple, {:withdraw, {amount, currency}})
+  end
+
+  @spec balance(user :: String.t(), currency :: String.t()) ::
+          {:ok, new_balance :: number()} | {:error, :too_many_requests_to_user}
+  defp balance(user, currency) do
+    via_tuple = AccountDynamicSupervisor.via_tuple(user, AccountRegistry)
+    GenServer.call(via_tuple, {:balance, currency})
   end
 
   # Checks the message queue length of current user process
@@ -201,6 +229,33 @@ defmodule ExBanking.Transactions do
           end)
 
         {:reply, {:ok, get_amount_response(result)}, {user, new_wallet_list}}
+    end
+  end
+
+  @spec get_balance_response(currency :: String.t(), tuple()) ::
+          {:reply, {:ok, amount :: number()} | {:error, :wrong_arguments},
+           {user :: String.t(), wallet_list :: list()}}
+  defp get_balance_response(currency, {user, wallet_list}) do
+    find_currency =
+      wallet_list
+      |> Enum.any?(fn {_amount, old_currency} ->
+        old_currency == currency
+      end)
+
+    case find_currency do
+      true ->
+        # gets current amount for currency
+        {amount, _} =
+          wallet_list
+          |> Enum.find(fn {_amount, c} -> c == currency end)
+
+        {:reply, {:ok, get_amount_response(amount)}, {user, wallet_list}}
+
+      false when wallet_list == [] ->
+        {:reply, {:ok, 0.00}, {user, wallet_list}}
+
+      false ->
+        {:reply, {:error, :wrong_arguments}, {user, wallet_list}}
     end
   end
 

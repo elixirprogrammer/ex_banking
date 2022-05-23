@@ -71,8 +71,16 @@ defmodule ExBanking do
   @spec get_balance(user :: String.t(), currency :: String.t()) ::
           {:ok, balance :: number()}
           | {:error, :wrong_arguments | :user_does_not_exist | :too_many_requests_to_user}
-  def get_balance(user, currency) do
+  def get_balance(user, currency) when is_binary(user) and is_binary(currency) do
+    with true <- String.length(user) > 0,
+         true <- String.length(currency) > 0 do
+      Transactions.get_balance(user, currency)
+    else
+      false -> {:error, :wrong_arguments}
+    end
   end
+
+  def get_balance(_, _), do: {:error, :wrong_arguments}
 
   @doc """
   Decreases from_user's balance in given currency by amount value
