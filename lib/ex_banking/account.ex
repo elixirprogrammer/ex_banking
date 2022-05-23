@@ -5,27 +5,31 @@ defmodule ExBanking.Account do
 
   import ExBanking.AccountDynamicSupervisor
 
+  alias ExBanking.AccountRegistry
+
   @doc """
   Registers new user worker and user state worker if user not already in the system.
   """
   @spec new(user :: String.t()) :: :ok | {:error, :user_already_exists}
   def new(user) do
-    get_account_worker = Registry.lookup(ExBanking.AccountRegistry, user)
-    account_worker_exists? = account_worker_exists?(get_account_worker)
-    start_children?(account_worker_exists?, user)
+    # Error when pid found, starts account state child when not found
+    case exists?(user) do
+      true -> {:error, :user_already_exists}
+      false -> start_account_state_worker(start_account_state_child(user), user)
+    end
+  end
+
+  # Registry lookup for user
+  @spec exists?(user :: String.t()) :: boolean()
+  def exists?(user) do
+    get_account_worker = Registry.lookup(AccountRegistry, user)
+    worker_exists?(get_account_worker)
   end
 
   # Returns boolean if pid found with registry lookup
-  @spec account_worker_exists?(list()) :: boolean()
-  defp account_worker_exists?([{_pid, _}]), do: true
-  defp account_worker_exists?([]), do: false
-
-  # Error when pid found, starts account state child when not found
-  defp start_children?(true, _user), do: {:error, :user_already_exists}
-
-  defp start_children?(false, user) do
-    start_account_state_worker(start_account_state_child(user), user)
-  end
+  @spec worker_exists?(list()) :: boolean()
+  defp worker_exists?([{_pid, _}]), do: true
+  defp worker_exists?([]), do: false
 
   # Starts account worker when account state child started successfully if not error
   defp start_account_state_worker({:ok, _pid}, user) do
