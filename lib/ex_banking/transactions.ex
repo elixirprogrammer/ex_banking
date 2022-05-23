@@ -262,19 +262,21 @@ defmodule ExBanking.Transactions do
   # Converts amounts to decimals and makes the adding operation using the decimal package.
   @spec add_amount(current_amount :: number(), new_amount :: number()) :: number()
   defp add_amount(current_amount, new_amount) do
-    current_amount = current_amount |> to_string() |> D.new()
-    new_amount = new_amount |> to_string() |> D.new()
-
-    D.add(current_amount, new_amount) |> Decimal.to_float()
+    do_operation(current_amount, new_amount, &D.add(&1, &2))
   end
 
   # Converts amounts to decimals and makes the adding operation using the decimal package.
   @spec add_amount(current_amount :: number(), new_amount :: number()) :: number()
   defp subtract_amount(current_amount, new_amount) do
+    do_operation(current_amount, new_amount, &D.sub(&1, &2))
+  end
+
+  # Calls decimal arithmetic dynamically
+  defp do_operation(current_amount, new_amount, func) do
     current_amount = current_amount |> to_string() |> D.new()
     new_amount = new_amount |> to_string() |> D.new()
 
-    D.sub(current_amount, new_amount) |> Decimal.to_float()
+    func.(current_amount, new_amount) |> Decimal.to_float()
   end
 
   @spec get_amount_response(amount :: number()) :: number()
