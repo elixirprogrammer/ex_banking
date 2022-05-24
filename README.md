@@ -55,3 +55,9 @@ Dynamic supervisor to start account workers.
 
 To handle all users transactions.
 
+### Supervision Tree View
+
+![Supervision Tree](supervision-tree-diagram.png)
+<!-- 
+### See modules inside after generate the docs using
+
