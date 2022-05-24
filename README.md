@@ -1,21 +1,57 @@
-# ExBanking
+# ExBanking Made By | [Anthony Gonzalez](https://elixirprogrammer.com "elixirprogrammer.com")
 
-**TODO: Add description**
+Banking application made with Elixir/OTP with the following functionality:
 
-## Installation
+- Users can be created in the system with a string, a user will be a process in the system created with a registry, and a backup process to maintain the state when process interrupted or restarted.
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `ex_banking` to your list of dependencies in `mix.exs`:
+- Users can deposi money for any currency.
 
-```elixir
-def deps do
-  [
-    {:ex_banking, "~> 0.1.0"}
-  ]
-end
+- Users can withdraw money from any currency.
+
+- Users can get balance from any currency, balance will belong to a currency.
+
+- Users can send money from account to other users.
+
+### Installation and running this solution
+
+#### Project Operating System Dependencies Requirements
+
+This solution was made with Elixir, to run locally the following is needed:
+
+* Elixir 1.13 or later
+* Erlang 22 or later
+
+Fetch dependencies:
+
+```sh
+mix deps.get
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/ex_banking>.
+To run the test:
+
+```sh
+mix test
+```
+
+### Modules
+
+** ExBanking **
+
+Main public interface.
+
+** Account **
+
+For account creation.
+
+** Account State **
+
+To keep account state when process gets restarted.
+
+** AccountDynamicSupervisor **
+
+Dynamic supervisor to start account workers.
+
+** Transactions **
+
+To handle all users transactions.
 
