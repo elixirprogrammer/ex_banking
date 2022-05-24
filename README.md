@@ -4,7 +4,7 @@ Banking application made with Elixir/OTP with the following functionality:
 
 - Users can be created in the system with a string, a user will be a process in the system created with a registry, and a backup process to maintain the state when process interrupted or restarted.
 
-- Users can deposi money for any currency.
+- Users can deposit money for any currency.
 
 - Users can withdraw money from any currency.
 
