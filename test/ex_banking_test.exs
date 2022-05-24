@@ -325,6 +325,21 @@ defmodule ExBankingTest do
     end
   end
 
+  describe "account state" do
+    setup do
+      :ok = ExBanking.create_user("account state")
+      on_exit(fn -> terminate_children("account state") end)
+    end
+
+    test "recovers account state when process terminated" do
+      assert {:ok, 10.0} = ExBanking.deposit("account state", 10, "USD")
+
+      assert :ok = GenServer.stop(AccountDynamicSupervisor.via_tuple("account state", AccountRegistry))
+
+      assert {:ok, 10.0} = ExBanking.get_balance("account state", "USD")
+    end
+  end
+
   defp random_operation(:deposit), do: ExBanking.deposit("random user", 100, "USD")
   defp random_operation(:withdraw), do: ExBanking.withdraw("random user", 1, "USD")
   defp random_operation(:balance), do: ExBanking.get_balance("random user", "USD")
