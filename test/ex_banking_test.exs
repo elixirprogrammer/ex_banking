@@ -9,6 +9,8 @@ defmodule ExBankingTest do
   @user2 "Jane"
   @user3 "marlong"
   @user4 "Tania"
+  @user5 "Sender"
+  @user6 "Receiver"
 
   describe "create_user/1" do
     test "creates user successfully" do
@@ -61,7 +63,7 @@ defmodule ExBankingTest do
     end
 
     test "error when negative amount" do
-      assert {:error, :wrong_arguments} = ExBanking.deposit(@user1, -100, "")
+      assert {:error, :wrong_arguments} = ExBanking.deposit(@user1, -100, "USD")
     end
 
     test "error when user does not exists" do
@@ -73,18 +75,6 @@ defmodule ExBankingTest do
     setup do
       :ok = ExBanking.create_user(@user2)
       on_exit(fn -> terminate_children(@user2) end)
-    end
-
-    test "error when moren than 10 requests" do
-      result =
-        for n <- 1..11 do
-          Task.async(fn -> ExBanking.deposit(@user2, n, "USD") end)
-        end
-        |> Enum.map(&Task.await/1)
-
-      assert 1 =
-               result
-               |> Enum.count(fn result -> result == {:error, :too_many_requests_to_user} end)
     end
 
     test "creates USD currency successfully" do
@@ -130,7 +120,7 @@ defmodule ExBankingTest do
     end
 
     test "error when negative amount" do
-      assert {:error, :wrong_arguments} = ExBanking.withdraw(@user1, -100, "")
+      assert {:error, :wrong_arguments} = ExBanking.withdraw(@user1, -100, "USD")
     end
 
     test "error when user does not exists" do
@@ -225,6 +215,119 @@ defmodule ExBankingTest do
       assert {:ok, 10.0} = ExBanking.get_balance(@user4, "EUR")
     end
   end
+
+  describe "send/4 errors validations" do
+    test "error users not string" do
+      assert {:error, :wrong_arguments} = ExBanking.send(<<1::3>>, <<1::3>>, 1, "USD")
+      assert {:error, :wrong_arguments} = ExBanking.send([], [], 1, "USD")
+      assert {:error, :wrong_arguments} = ExBanking.send(%{}, %{}, 1, "USD")
+    end
+
+    test "error when currency not string" do
+      assert {:error, :wrong_arguments} = ExBanking.send(@user5, @user6, 1, <<1::3>>)
+      assert {:error, :wrong_arguments} = ExBanking.send(@user5, @user6, 1, [])
+      assert {:error, :wrong_arguments} = ExBanking.send(@user5, @user6, 1, %{})
+    end
+
+    test "error when amount not a number" do
+      assert {:error, :wrong_arguments} = ExBanking.send(@user5, @user6, "", "USD")
+    end
+
+    test "error when empty users name" do
+      assert {:error, :wrong_arguments} = ExBanking.send("", "", 1, "USD")
+    end
+
+    test "error when empty user currency" do
+      assert {:error, :wrong_arguments} = ExBanking.send(@user5, @user6, 1, "")
+    end
+
+    test "error when negative amount" do
+      assert {:error, :wrong_arguments} = ExBanking.send(@user5, @user6, -100, "USD")
+    end
+
+    test "error when sender does not exists" do
+      assert {:error, :sender_does_not_exist} = ExBanking.send("test", @user6, 100, "USD")
+    end
+  end
+
+  describe "send/4" do
+    setup do
+      :ok = ExBanking.create_user(@user5)
+      :ok = ExBanking.create_user(@user6)
+      on_exit(fn -> terminate_children(@user5) end)
+      on_exit(fn -> terminate_children(@user6) end)
+    end
+
+    test "error when receiver does not exists" do
+      assert {:ok, 10.0} = ExBanking.deposit(@user5, 10, "USD")
+
+      assert {:error, :receiver_does_not_exist} = ExBanking.send(@user5, "user", 1, "USD")
+    end
+
+    test "error when currency not found" do
+      assert {:error, :wrong_arguments} = ExBanking.send(@user5, @user6, 100, "USD")
+    end
+
+    test "error when not enough money" do
+      assert {:ok, 0.1} = ExBanking.deposit(@user5, 0.1, "USD")
+      assert {:error, :not_enough_money} = ExBanking.send(@user5, @user6, 100, "USD")
+    end
+
+    test "sends money successfully" do
+      assert {:ok, 10.0} = ExBanking.deposit(@user5, 10, "USD")
+      assert {:ok, 10.0} = ExBanking.deposit(@user6, 10, "USD")
+
+      assert {:ok, 5.0, 15.0} = ExBanking.send(@user5, @user6, 5, "USD")
+    end
+  end
+
+  describe "too many requests error" do
+    setup do
+      :ok = ExBanking.create_user("random user")
+      on_exit(fn -> terminate_children("random user") end)
+    end
+
+    test "error when more than 10 requests" do
+      operations = [:balance, :deposit, :withdraw]
+
+      result =
+        1..14
+        |> Enum.map(fn _ ->
+          Task.async(fn -> Enum.random(operations) |> random_operation() end)
+        end)
+        |> Enum.map(&Task.await/1)
+
+      assert 4 =
+               result
+               |> Enum.count(fn result -> result == {:error, :too_many_requests_to_user} end)
+    end
+  end
+
+  describe "sender too many requests errors" do
+    setup do
+      :ok = ExBanking.create_user("wrong sender")
+      :ok = ExBanking.create_user("wrong receiver")
+      on_exit(fn -> terminate_children("wrong sender") end)
+      on_exit(fn -> terminate_children("wrong receiver") end)
+    end
+
+    test "error when too many requests to sender" do
+      result =
+        1..14
+        |> Enum.map(fn _ ->
+          Task.async(fn -> ExBanking.send("wrong sender", "wrong receiver", 1, "USD") end)
+        end)
+        |> Enum.map(&Task.await/1)
+
+      assert 4 =
+               result
+               |> Enum.count(fn result -> result == {:error, :too_many_requests_to_sender} end)
+    end
+  end
+
+  defp random_operation(:deposit), do: ExBanking.deposit("random user", 100, "USD")
+  defp random_operation(:withdraw), do: ExBanking.withdraw("random user", 1, "USD")
+  defp random_operation(:balance), do: ExBanking.get_balance("random user", "USD")
 
   defp terminate_children(user) do
     [{account_pid, _}] = Registry.lookup(AccountRegistry, user)

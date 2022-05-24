@@ -59,12 +59,10 @@ defmodule ExBanking.Transactions do
     make_operation(amount, currency, state, &get_deposit_response/3)
   end
 
-  @impl true
   def handle_call({:withdraw, {amount, currency}}, _from, state) do
     make_operation(amount, currency, state, &get_withdraw_response/3)
   end
 
-  @impl true
   def handle_call({:balance, currency}, _from, state) do
     case validate_operations_requests(state) do
       :ok ->
@@ -77,7 +75,7 @@ defmodule ExBanking.Transactions do
 
   @impl true
   def handle_info(:block, state) do
-    # block for one second
+    # block
     Process.sleep(50)
     {:noreply, state}
   end

@@ -92,15 +92,51 @@ defmodule ExBanking do
              | :too_many_requests_to_sender
              | :too_many_requests_to_receiver}
   def send(from_user, to_user, amount, currency) do
+    withdraw(from_user, amount, currency)
+    |> withdraw_from_user_action(to_user, amount, currency)
   end
+
+  def send(_, _, _, _), do: {:error, :wrong_arguments}
 
   # Calls the transaction dynamically as an anonymous function
   defp validate_input(user, amount, currency, func) do
     with true <- String.length(user) > 0,
+         true <- amount > 0,
          true <- String.length(currency) > 0 do
       func.(user, amount, currency)
     else
       false -> {:error, :wrong_arguments}
     end
   end
+
+  # Gets response based on withdraw from user
+  defp withdraw_from_user_action({:ok, from_user_balance}, to_user, amount, currency) do
+    deposit(to_user, amount, currency)
+    |> deposit_to_user_action(from_user_balance)
+  end
+
+  defp withdraw_from_user_action({:error, :user_does_not_exist}, _, _, _) do
+    {:error, :sender_does_not_exist}
+  end
+
+  defp withdraw_from_user_action({:error, :too_many_requests_to_user}, _, _, _) do
+    {:error, :too_many_requests_to_sender}
+  end
+
+  defp withdraw_from_user_action(error, _, _, _), do: error
+
+  # Gets response based on deposit to user
+  defp deposit_to_user_action({:ok, to_user_balance}, from_user_balance) do
+    {:ok, from_user_balance, to_user_balance}
+  end
+
+  defp deposit_to_user_action({:error, :user_does_not_exist}, _) do
+    {:error, :receiver_does_not_exist}
+  end
+
+  defp deposit_to_user_action({:error, :too_many_requests_to_user}, _) do
+    {:error, :too_many_requests_to_receiver}
+  end
+
+  defp deposit_to_user_action(error, _), do: error
 end
