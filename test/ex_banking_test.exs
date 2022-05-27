@@ -335,6 +335,7 @@ defmodule ExBankingTest do
       assert {:ok, 10.0} = ExBanking.deposit("account state", 10, "USD")
 
       assert :ok = GenServer.stop(AccountDynamicSupervisor.via_tuple("account state", AccountRegistry))
+      Process.sleep(50)
 
       assert {:ok, 10.0} = ExBanking.get_balance("account state", "USD")
     end
