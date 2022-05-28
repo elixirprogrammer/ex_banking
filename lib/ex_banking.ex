@@ -96,8 +96,6 @@ defmodule ExBanking do
     |> withdraw_from_user_action(to_user, amount, currency)
   end
 
-  def send(_, _, _, _), do: {:error, :wrong_arguments}
-
   # Calls the transaction dynamically as an anonymous function
   defp validate_input(user, amount, currency, func) do
     with true <- String.length(user) > 0,
