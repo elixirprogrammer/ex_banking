@@ -39,11 +39,15 @@ mix test
 
 Main public interface.
 
+** AccountAccess **
+
+Genserver to control access with rate limit to transactions.
+
 ** Account **
 
 For account creation.
 
-** Account State **
+** AccountState **
 
 To keep account state when process gets restarted.
 
@@ -57,7 +61,7 @@ To handle all users transactions.
 
 ### Supervision Tree View
 
-![Supervision Tree](supervision-tree-diagram.png)
+![Supervision Tree](supervision-tree-diagram.svg)
 <!-- 
 ### See modules inside after generate the docs using
 

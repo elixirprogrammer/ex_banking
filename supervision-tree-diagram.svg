@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <clipPath id="clip-Custom_Size_1">
+      <rect width="800" height="600"/>
+    </clipPath>
+  </defs>
+  <g id="Custom_Size_1" data-name="Custom Size – 1" clip-path="url(#clip-Custom_Size_1)">
+    <rect width="800" height="600" fill="#fff"/>
+    <g id="Group_1" data-name="Group 1" transform="translate(102 -14.583)">
+      <g id="Rectangle_1" data-name="Rectangle 1" transform="translate(194 48.583)" fill="#fff" stroke="#707070" stroke-width="4">
+        <rect width="209" height="57" stroke="none"/>
+        <rect x="2" y="2" width="205" height="53" fill="none"/>
+      </g>
+      <text id="Supervisor" transform="translate(216 88.583)" fill="#707070" font-size="30" font-family="SegoeUIBlack, Segoe UI"><tspan x="0" y="0">Supervisor</tspan></text>
+    </g>
+    <g id="Group_2" data-name="Group 2" transform="translate(72 157.338)">
+      <g id="Rectangle_1-2" data-name="Rectangle 1" transform="translate(194 48.662)" fill="#fff" stroke="#707070" stroke-width="4">
+        <rect width="171" height="36" stroke="none"/>
+        <rect x="2" y="2" width="167" height="32" fill="none"/>
+      </g>
+      <g id="Rectangle_2" data-name="Rectangle 2" transform="translate(194 48.662)" fill="#fff" stroke="#707070" stroke-width="4">
+        <rect width="171" height="36" stroke="none"/>
+        <rect x="2" y="2" width="167" height="32" fill="none"/>
+      </g>
+      <text id="AccountRegistry" transform="translate(208 72.662)" fill="#707070" font-size="18" font-family="SegoeUIBlack, Segoe UI"><tspan x="0" y="0">AccountRegistry</tspan></text>
+    </g>
+    <g id="Group_6" data-name="Group 6" transform="translate(72 367.338)">
+      <g id="Rectangle_1-3" data-name="Rectangle 1" transform="translate(194 48.662)" fill="#fff" stroke="#707070" stroke-width="4">
+        <rect width="140" height="36" stroke="none"/>
+        <rect x="2" y="2" width="136" height="32" fill="none"/>
+      </g>
+      <g id="Rectangle_2-2" data-name="Rectangle 2" transform="translate(194 48.662)" fill="#fff" stroke="#707070" stroke-width="4">
+        <rect width="140" height="36" stroke="none"/>
+        <rect x="2" y="2" width="136" height="32" fill="none"/>
+      </g>
+      <text id="Transactions" transform="translate(208 72.662)" fill="#707070" font-size="18" font-family="SegoeUIBlack, Segoe UI"><tspan x="0" y="0">Transactions</tspan></text>
+    </g>
+    <g id="Group_7" data-name="Group 7" transform="translate(-37 445.338)">
+      <g id="Rectangle_1-4" data-name="Rectangle 1" transform="translate(194 48.662)" fill="#fff" stroke="#707070" stroke-width="4">
+        <rect width="151" height="36" stroke="none"/>
+        <rect x="2" y="2" width="147" height="32" fill="none"/>
+      </g>
+      <g id="Rectangle_2-3" data-name="Rectangle 2" transform="translate(194 48.662)" fill="#fff" stroke="#707070" stroke-width="4">
+        <rect width="151" height="36" stroke="none"/>
+        <rect x="2" y="2" width="147" height="32" fill="none"/>
+      </g>
+      <text id="AccountState" transform="translate(208 72.662)" fill="#707070" font-size="18" font-family="SegoeUIBlack, Segoe UI"><tspan x="0" y="0">AccountState</tspan></text>
+    </g>
+    <g id="Group_8" data-name="Group 8" transform="translate(-177 367.338)">
+      <g id="Rectangle_1-5" data-name="Rectangle 1" transform="translate(194 48.662)" fill="#fff" stroke="#707070" stroke-width="4">
+        <rect width="159" height="36" stroke="none"/>
+        <rect x="2" y="2" width="155" height="32" fill="none"/>
+      </g>
+      <g id="Rectangle_2-4" data-name="Rectangle 2" transform="translate(194 48.662)" fill="#fff" stroke="#707070" stroke-width="4">
+        <rect width="159" height="36" stroke="none"/>
+        <rect x="2" y="2" width="155" height="32" fill="none"/>
+      </g>
+      <text id="AccountAccess" transform="translate(208 72.662)" fill="#707070" font-size="18" font-family="SegoeUIBlack, Segoe UI"><tspan x="0" y="0">AccountAccess</tspan></text>
+    </g>
+    <g id="Group_4" data-name="Group 4" transform="translate(223 244.338)">
+      <g id="Rectangle_1-6" data-name="Rectangle 1" transform="translate(194 48.662)" fill="#fff" stroke="#707070" stroke-width="4">
+        <rect width="171" height="36" stroke="none"/>
+        <rect x="2" y="2" width="167" height="32" fill="none"/>
+      </g>
+      <g id="Rectangle_2-5" data-name="Rectangle 2" transform="translate(194 48.662)" fill="#fff" stroke="#707070" stroke-width="4">
+        <rect width="232" height="36" stroke="none"/>
+        <rect x="2" y="2" width="228" height="32" fill="none"/>
+      </g>
+      <text id="AccountAccessRegistry" transform="translate(208 72.662)" fill="#707070" font-size="18" font-family="SegoeUIBlack, Segoe UI"><tspan x="0" y="0">AccountAccessRegistry</tspan></text>
+    </g>
+    <g id="Group_5" data-name="Group 5" transform="translate(372 157.338)">
+      <g id="Rectangle_1-7" data-name="Rectangle 1" transform="translate(194 48.662)" fill="#fff" stroke="#707070" stroke-width="4">
+        <rect width="171" height="36" stroke="none"/>
+        <rect x="2" y="2" width="167" height="32" fill="none"/>
+      </g>
+      <g id="Rectangle_2-6" data-name="Rectangle 2" transform="translate(194 48.662)" fill="#fff" stroke="#707070" stroke-width="4">
+        <rect width="221" height="36" stroke="none"/>
+        <rect x="2" y="2" width="217" height="32" fill="none"/>
+      </g>
+      <text id="AccountStateRegistry" transform="translate(208 72.662)" fill="#707070" font-size="18" font-family="SegoeUIBlack, Segoe UI"><tspan x="0" y="0">AccountStateRegistry</tspan></text>
+    </g>
+    <g id="Group_3" data-name="Group 3" transform="translate(-177 244.338)">
+      <g id="Rectangle_1-8" data-name="Rectangle 1" transform="translate(194 48.662)" fill="#fff" stroke="#707070" stroke-width="4">
+        <rect width="279" height="36" stroke="none"/>
+        <rect x="2" y="2" width="275" height="32" fill="none"/>
+      </g>
+      <text id="AccountDynamicSupervisor" transform="translate(208 72.662)" fill="#707070" font-size="18" font-family="SegoeUIBlack, Segoe UI"><tspan x="0" y="0">AccountDynamicSupervisor</tspan></text>
+    </g>
+    <path id="Polygon_5" data-name="Polygon 5" d="M9,0l9,15H0Z" transform="translate(309 90)" fill="#111"/>
+    <path id="Polygon_9" data-name="Polygon 9" d="M9,0l9,15H0Z" transform="translate(66 329)" fill="#111"/>
+    <path id="Polygon_10" data-name="Polygon 10" d="M9,0l9,15H0Z" transform="translate(197 330)" fill="#111"/>
+    <path id="Polygon_11" data-name="Polygon 11" d="M9,0l9,15H0Z" transform="translate(278 329)" fill="#111"/>
+    <path id="Polygon_6" data-name="Polygon 6" d="M9,0l9,15H0Z" transform="translate(343 90)" fill="#111"/>
+    <path id="Polygon_7" data-name="Polygon 7" d="M9,0l9,15H0Z" transform="translate(467 91)" fill="#111"/>
+    <path id="Polygon_8" data-name="Polygon 8" d="M9,0l9,15H0Z" transform="matrix(-0.035, -0.999, 0.999, -0.035, 504.819, 71.756)" fill="#111"/>
+    <line id="Line_1" data-name="Line 1" y2="60" transform="translate(317.5 105.5)" fill="none" stroke="#707070" stroke-width="1"/>
+    <line id="Line_2" data-name="Line 2" x1="205" transform="translate(112.5 165.5)" fill="none" stroke="#707070" stroke-width="1"/>
+    <line id="Line_3" data-name="Line 3" y2="128" transform="translate(112.5 165.5)" fill="none" stroke="#707070" stroke-width="1"/>
+    <line id="Line_4" data-name="Line 4" y2="103" transform="translate(352.5 105.5)" fill="none" stroke="#707070" stroke-width="1"/>
+    <line id="Line_5" data-name="Line 5" x2="2" y2="187" transform="translate(476.5 106.5)" fill="none" stroke="#707070" stroke-width="1"/>
+    <line id="Line_6" data-name="Line 6" x2="163" transform="translate(519.5 62.5)" fill="none" stroke="#707070" stroke-width="1"/>
+    <line id="Line_7" data-name="Line 7" y2="146" transform="translate(682.5 62.5)" fill="none" stroke="#707070" stroke-width="1"/>
+    <line id="Line_8" data-name="Line 8" y2="72" transform="translate(75.5 344.5)" fill="none" stroke="#707070" stroke-width="1"/>
+    <line id="Line_9" data-name="Line 9" y2="149" transform="translate(206.5 345.5)" fill="none" stroke="#707070" stroke-width="1"/>
+    <line id="Line_10" data-name="Line 10" y2="72" transform="translate(287.5 345.5)" fill="none" stroke="#707070" stroke-width="1"/>
+  </g>
+</svg>

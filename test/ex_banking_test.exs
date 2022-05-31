@@ -4,6 +4,7 @@ defmodule ExBankingTest do
   alias ExBanking.AccountDynamicSupervisor
   alias ExBanking.AccountRegistry
   alias ExBanking.AccountStateRegistry
+  alias ExBanking.AccountAccessRegistry
 
   @user1 "John Doe"
   @user2 "Jane"
@@ -288,12 +289,14 @@ defmodule ExBankingTest do
     end
 
     test "error when more than 10 requests" do
+      assert {:ok, 10.0} = ExBanking.deposit("random user", 10, "USD")
+
       operations = [:balance, :deposit, :withdraw]
 
       result =
         1..14
         |> Enum.map(fn _ ->
-          Task.async(fn -> Enum.random(operations) |> random_operation() end)
+          Task.async(fn -> Enum.random(operations) |> random_operation("random user") end)
         end)
         |> Enum.map(&Task.await/1)
 
@@ -303,7 +306,7 @@ defmodule ExBankingTest do
     end
   end
 
-  describe "sender too many requests errors" do
+  describe "send/4 too many requests errors" do
     setup do
       :ok = ExBanking.create_user("wrong sender")
       :ok = ExBanking.create_user("wrong receiver")
@@ -312,6 +315,8 @@ defmodule ExBankingTest do
     end
 
     test "error when too many requests to sender" do
+      assert {:ok, 100.0} = ExBanking.deposit("wrong sender", 100, "USD")
+
       result =
         1..14
         |> Enum.map(fn _ ->
@@ -322,6 +327,23 @@ defmodule ExBankingTest do
       assert 4 =
                result
                |> Enum.count(fn result -> result == {:error, :too_many_requests_to_sender} end)
+    end
+
+    test "error when too many requests to receiver" do
+      assert {:ok, 100.0} = ExBanking.deposit("wrong receiver", 100, "USD")
+
+      assert {:ok, 100.0} = ExBanking.deposit("wrong sender", 100, "USD")
+
+      operations = [:balance, :deposit, :withdraw]
+
+      1..10
+      |> Enum.map(fn _ ->
+        Task.async(fn -> Enum.random(operations) |> random_operation("wrong receiver") end)
+      end)
+      |> Enum.map(&Task.await/1)
+
+      assert {:error, :too_many_requests_to_receiver} =
+               ExBanking.send("wrong sender", "wrong receiver", 1, "USD")
     end
   end
 
@@ -334,22 +356,49 @@ defmodule ExBankingTest do
     test "recovers account state when process terminated" do
       assert {:ok, 10.0} = ExBanking.deposit("account state", 10, "USD")
 
-      assert :ok = GenServer.stop(AccountDynamicSupervisor.via_tuple("account state", AccountRegistry))
+      assert :ok =
+               GenServer.stop(
+                 AccountDynamicSupervisor.via_tuple("account state", AccountRegistry)
+               )
+
       Process.sleep(50)
 
       assert {:ok, 10.0} = ExBanking.get_balance("account state", "USD")
     end
   end
 
-  defp random_operation(:deposit), do: ExBanking.deposit("random user", 100, "USD")
-  defp random_operation(:withdraw), do: ExBanking.withdraw("random user", 1, "USD")
-  defp random_operation(:balance), do: ExBanking.get_balance("random user", "USD")
+  describe "account access" do
+    setup do
+      :ok = ExBanking.create_user("account access")
+      on_exit(fn -> terminate_children("account access") end)
+    end
+
+    test "resets the requests count" do
+      1..11
+      |> Enum.map(fn _ ->
+        Task.async(fn -> ExBanking.deposit("account access", 1, "USD") end)
+      end)
+      |> Enum.map(&Task.await/1)
+
+      assert {:error, :too_many_requests_to_user} = ExBanking.get_balance("account access", "USD")
+
+      Process.sleep(100)
+
+      assert {:ok, 11.0} = ExBanking.get_balance("account access", "USD")
+    end
+  end
+
+  defp random_operation(:deposit, user), do: ExBanking.deposit(user, 100, "USD")
+  defp random_operation(:withdraw, user), do: ExBanking.withdraw(user, 1, "USD")
+  defp random_operation(:balance, user), do: ExBanking.get_balance(user, "USD")
 
   defp terminate_children(user) do
     [{account_pid, _}] = Registry.lookup(AccountRegistry, user)
     [{account_state_pid, _}] = Registry.lookup(AccountStateRegistry, user)
+    [{account_access_pid, _}] = Registry.lookup(AccountAccessRegistry, user)
 
     :ok = DynamicSupervisor.terminate_child(AccountDynamicSupervisor, account_pid)
     :ok = DynamicSupervisor.terminate_child(AccountDynamicSupervisor, account_state_pid)
+    :ok = DynamicSupervisor.terminate_child(AccountDynamicSupervisor, account_access_pid)
   end
 end

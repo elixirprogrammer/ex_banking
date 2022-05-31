@@ -4,7 +4,7 @@ defmodule ExBanking do
   """
 
   alias ExBanking.Account
-  alias ExBanking.Transactions
+  alias ExBanking.AccountAccess
 
   @doc """
   Creates new user in the system
@@ -32,7 +32,7 @@ defmodule ExBanking do
           | {:error, :wrong_arguments | :user_does_not_exist | :too_many_requests_to_user}
   def deposit(user, amount, currency)
       when is_binary(user) and is_number(amount) and is_binary(currency) do
-    validate_input(user, amount, currency, &Transactions.deposit/3)
+    validate_input(user, amount, currency, &AccountAccess.deposit/3)
   end
 
   def deposit(_, _, _), do: {:error, :wrong_arguments}
@@ -50,7 +50,7 @@ defmodule ExBanking do
              | :too_many_requests_to_user}
   def withdraw(user, amount, currency)
       when is_binary(user) and is_number(amount) and is_binary(currency) do
-    validate_input(user, amount, currency, &Transactions.withdraw/3)
+    validate_input(user, amount, currency, &AccountAccess.withdraw/3)
   end
 
   def withdraw(_, _, _), do: {:error, :wrong_arguments}
@@ -64,7 +64,7 @@ defmodule ExBanking do
   def get_balance(user, currency) when is_binary(user) and is_binary(currency) do
     with true <- String.length(user) > 0,
          true <- String.length(currency) > 0 do
-      Transactions.get_balance(user, currency)
+      AccountAccess.get_balance(user, currency)
     else
       false -> {:error, :wrong_arguments}
     end

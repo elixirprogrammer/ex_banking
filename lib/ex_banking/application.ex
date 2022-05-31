@@ -8,6 +8,7 @@ defmodule ExBanking.Application do
     children = [
       {Registry, keys: :unique, name: ExBanking.AccountRegistry},
       {Registry, keys: :unique, name: ExBanking.AccountStateRegistry},
+      {Registry, keys: :unique, name: ExBanking.AccountAccessRegistry},
       {DynamicSupervisor, strategy: :one_for_one, name: ExBanking.AccountDynamicSupervisor}
     ]
 

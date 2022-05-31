@@ -3,8 +3,10 @@ defmodule ExBanking.AccountDynamicSupervisor do
   Dynamic supervisor to start account and account state workers
   """
   alias ExBanking.Transactions
+  alias ExBanking.AccountAccess
   alias ExBanking.AccountState
   alias ExBanking.AccountStateRegistry
+  alias ExBanking.AccountAccessRegistry
   alias ExBanking.AccountRegistry
 
   @spec start_account_state_child(user :: String.t()) ::
@@ -14,6 +16,16 @@ defmodule ExBanking.AccountDynamicSupervisor do
           | {:error, {:already_started, pid()} | :max_children | term()}
   def start_account_state_child(user) do
     via_tuple = {AccountState, name: via_tuple(user, AccountStateRegistry)}
+    DynamicSupervisor.start_child(__MODULE__, via_tuple)
+  end
+
+  @spec start_account_access_child(user :: String.t()) ::
+          {:ok, pid()}
+          | {:ok, pid(), info :: term()}
+          | :ignore
+          | {:error, {:already_started, pid()} | :max_children | term()}
+  def start_account_access_child(user) do
+    via_tuple = {AccountAccess, name: via_tuple(user, AccountAccessRegistry)}
     DynamicSupervisor.start_child(__MODULE__, via_tuple)
   end
 
