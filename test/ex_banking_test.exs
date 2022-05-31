@@ -397,8 +397,8 @@ defmodule ExBankingTest do
     [{account_state_pid, _}] = Registry.lookup(AccountStateRegistry, user)
     [{account_access_pid, _}] = Registry.lookup(AccountAccessRegistry, user)
 
+    :ok = DynamicSupervisor.terminate_child(AccountDynamicSupervisor, account_access_pid)
     :ok = DynamicSupervisor.terminate_child(AccountDynamicSupervisor, account_pid)
     :ok = DynamicSupervisor.terminate_child(AccountDynamicSupervisor, account_state_pid)
-    :ok = DynamicSupervisor.terminate_child(AccountDynamicSupervisor, account_access_pid)
   end
 end
